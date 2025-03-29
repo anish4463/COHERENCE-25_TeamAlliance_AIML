@@ -1,7 +1,7 @@
 import pickle
 import numpy as np
 
-def detect_fake_resumes(resume_features):
+def detect_fake_resume(resume_features):
     """Identify fake resumes using Isolation Forest."""
     model_path = "models/fake_resume_model.pkl"
     

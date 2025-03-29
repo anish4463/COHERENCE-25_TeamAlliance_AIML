@@ -1,113 +1,492 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Resume Screener</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeIQ</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-  </head>
-  <body class="bg-gray-900 text-white">
-    <div class="max-w-5xl mx-auto p-8 bg-gray-800 shadow-lg rounded-lg mt-10">
-      <h2 class="text-3xl font-bold text-center text-blue-400 mb-6">
-        AI-Powered Resume Screener
-      </h2>
-
-      <!-- Drag & Drop Upload Box -->
-      <div
-        class="border-2 border-dashed border-blue-500 p-6 rounded-lg text-center"
-        id="dropArea"
-      >
-        <p class="text-lg font-semibold">Drag & Drop Resumes Here</p>
-        <input
-          type="file"
-          id="resumeFiles"
-          multiple
-          webkitdirectory
-          class="hidden"
-        />
-        <label
-          for="resumeFiles"
-          class="block mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg cursor-pointer hover:bg-blue-600"
-        >
-          Select Files
-        </label>
-      </div>
-
-      <!-- Uploaded File List -->
-      <div id="fileList" class="mt-4 text-gray-300"></div>
-
-      <!-- HR Qualification Criteria -->
-      <div class="grid grid-cols-2 gap-4 mt-6">
-        <div>
-          <label class="block text-gray-300">10th Percentage:</label>
-          <input
-            type="number"
-            id="tenth"
-            class="border p-2 w-full rounded-md bg-gray-700 text-white"
-            placeholder="Enter %"
-          />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow-x: hidden;
+            width: 100%;
+            scroll-behavior: smooth;
+        }
+        body {
+            background: linear-gradient(135deg, #EDF2F7 0%, #E2E8F0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .content {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            padding: 40px 80px;
+            margin-top: 0;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+            transition: all 0.3s ease;
+        }
+        /* Add these new styles */
+        .gradient-text {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card-gradient {
+            background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+        }
+        .feature-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(229, 231, 235, 0.5);
+        }
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+        }
+        .button-hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-900 font-sans">
+    <!-- Navbar -->
+    <nav class="navbar flex justify-between items-center p-6 shadow-sm w-full">
+        <div class="container mx-auto px-8 flex justify-between items-center">
+            <h1 class="text-3xl font-extrabold text-blue-600 font-serif hover:text-blue-700 transition-colors">ResumeIQ</h1>
+            <ul class="flex gap-8 font-medium">
+                <li><a href="#" class="hover:text-blue-500 transition">Home</a></li>
+                <li><a href="#about" class="hover:text-blue-500 transition">About</a></li>
+                <li><a href="#features" class="hover:text-blue-500 transition">Features</a></li>
+                <li><a href="#pricing" class="hover:text-blue-500 transition">Pricing</a></li>
+                <li><a href="#faq" class="hover:text-blue-500 transition">FAQ</a></li>
+                <li><a href="#blog" class="hover:text-blue-500 transition">Blog</a></li>
+                <li><a href="#contact" class="hover:text-blue-500 transition">Contact</a></li>
+            </ul>
         </div>
-        <div>
-          <label class="block text-gray-300">12th Percentage:</label>
-          <input
-            type="number"
-            id="twelfth"
-            class="border p-2 w-full rounded-md bg-gray-700 text-white"
-            placeholder="Enter %"
-          />
+    </nav>
+
+    <div class="content">
+        <h3 class="text-xl text-center text-gray-600 italic mb-6">"Empowering Recruiters with AI-Driven Resume Insights for Smarter Hiring Decisions"</h3>
+        <h2 class="text-5xl font-extrabold text-center text-blue-600 mb-12 font-serif">AI-Powered Resume Screener</h2>
+
+        <!-- New Information Section -->
+        <section class="bg-gradient-to-br from-blue-50 to-gray-50 p-8 rounded-xl mb-12 shadow-lg">
+            <h3 class="text-2xl font-semibold text-center text-gray-800">Why Choose ResumeIQ?</h3>
+            <p class="text-center text-gray-700 mt-2">Our AI-powered resume screener simplifies the hiring process by analyzing and ranking candidates efficiently, ensuring you find the best fit for your team.</p>
+        </section>
+        
+        <!-- Infographics Section -->
+        <div class="grid grid-cols-3 gap-8 mt-8">
+            <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-brain text-4xl text-blue-500 mb-4"></i>
+                <p class="text-gray-700 mt-2 font-semibold">AI-Powered Analysis</p>
+            </div>
+            <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-chart-bar text-4xl text-blue-500 mb-4"></i>
+                <p class="text-gray-700 mt-2 font-semibold">Candidate Ranking</p>
+            </div>
+            <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-bolt text-4xl text-blue-500 mb-4"></i>
+                <p class="text-gray-700 mt-2 font-semibold">Quick Processing</p>
+            </div>
         </div>
-        <div>
-          <label class="block text-gray-300">CGPA:</label>
-          <input
-            type="number"
-            step="0.01"
-            id="cgpa"
-            class="border p-2 w-full rounded-md bg-gray-700 text-white"
-            placeholder="Enter CGPA"
-          />
+
+        <!-- Drag & Drop Upload Box -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+            <div id="dropArea" class="border-2 border-dashed border-blue-400 p-10 rounded-xl text-center hover:bg-blue-50 transition-all duration-300 shadow-lg">
+                <p class="text-lg font-semibold">Drag & Drop Resumes or Folders Here</p>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" id="resumeFiles" name="resumes[]" webkitdirectory directory multiple accept=".pdf,.doc,.docx" class="hidden" />
+                    <input type="file" id="singleFiles" name="resumes[]" multiple accept=".pdf,.doc,.docx" class="hidden" />
+                    <div class="flex gap-4 justify-center mt-4">
+                        <label for="resumeFiles" class="inline-block bg-blue-500 text-white py-3 px-6 rounded-lg cursor-pointer hover:bg-blue-600 transition shadow-lg">
+                            Select Folder
+                        </label>
+                        <label for="singleFiles" class="inline-block bg-blue-500 text-white py-3 px-6 rounded-lg cursor-pointer hover:bg-blue-600 transition shadow-lg">
+                            Select Files
+                        </label>
+                    </div>
+                </form>
+                <div id="fileList" class="mt-4 text-left max-h-48 overflow-y-auto"></div>
+                <p class="mt-2 text-sm text-gray-500">Supported formats: PDF, DOC, DOCX</p>
+            </div>
+
+            <!-- Job Description Input -->
+            <div class="border-2 border-blue-400 p-8 rounded-xl shadow-lg">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">Enter Job Description</h3>
+                <textarea 
+                    id="jobDescription" 
+                    class="w-full h-40 p-4 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none"
+                    placeholder="Enter the job description here. Include key requirements, qualifications, and responsibilities..."
+                ></textarea>
+                <button id="analyzeButton" class="mt-4 bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition shadow-lg w-full">
+                    Analyze Resumes
+                </button>
+            </div>
         </div>
-        <div>
-          <label class="block text-gray-300">Years of Experience:</label>
-          <input
-            type="number"
-            id="experience"
-            class="border p-2 w-full rounded-md bg-gray-700 text-white"
-            placeholder="Enter experience in years"
-          />
+
+        <!-- Upload Section Description -->
+        <section class="mt-8 text-center">
+            <h3 class="text-2xl font-bold text-gray-800">Upload Resumes Effortlessly</h3>
+            <p class="text-gray-700 mt-2 max-w-2xl mx-auto">Simply drag and drop multiple resumes, or upload an entire folder with a single click. Our AI will analyze each resume, compare it with the job description, and rank candidates based on their qualifications.</p>
+        </section>
+
+        <!-- Video Section -->
+        <section class="video-section bg-gradient-to-br from-blue-50 to-gray-50 p-8 rounded-xl mb-12 shadow-lg mt-12">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Learn More About ResumeIQ</h3>
+            <video controls class="w-full max-w-3xl mx-auto rounded-lg shadow-md">
+                <source src="{{ url_for('static', filename='intro.mp4') }}" type="video/mp4">
+                <source src="{{ url_for('static', filename='intro.webm') }}" type="video/webm">
+                Your browser does not support the video tag.
+            </video>
+        </section>
+
+        <!-- Solutions Section with buttons -->
+        <div class="text-center mt-12">
+            <h2 class="text-4xl font-semibold text-gray-800 mb-8">
+                Whatever your needs,<br> our solutions 
+                <span class="text-blue-600 font-bold">deliver.</span>
+            </h2>
+
+            <!-- Buttons Container -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mt-8">
+                <!-- Hourly -->
+                <button class="flex items-center space-x-2 px-6 py-3 border rounded-lg shadow-sm text-gray-700 hover:shadow-lg transition">
+                    <span class="text-pink-500 text-xl">⏰</span>
+                    <span>Hourly</span>
+                </button>
+    
+                <!-- Professional -->
+                <button class="flex items-center space-x-2 px-6 py-3 border rounded-lg shadow-sm text-gray-700 hover:shadow-lg transition">
+                    <span class="text-blue-500 text-xl">💼</span>
+                    <span>Professional</span>
+                </button>
+    
+                <!-- Campus -->
+                <button class="flex items-center space-x-2 px-6 py-3 border rounded-lg shadow-sm text-gray-700 hover:shadow-lg transition">
+                    <span class="text-purple-500 text-xl">🎓</span>
+                    <span>Campus</span>
+                </button>
+    
+                <!-- Technical -->
+                <button class="flex items-center space-x-2 px-6 py-3 border rounded-lg shadow-sm text-gray-700 hover:shadow-lg transition">
+                    <span class="text-indigo-500 text-xl">💻</span>
+                    <span>Technical</span>
+                </button>
+    
+                <!-- Internal Mobility -->
+                <button class="flex items-center space-x-2 px-6 py-3 border rounded-lg shadow-sm text-gray-700 hover:shadow-lg transition">
+                    <span class="text-pink-500 text-xl">🔁</span>
+                    <span>Internal Mobility</span>
+                </button>
+            </div>
         </div>
-      </div>
 
-      <label class="block text-gray-300 mt-4">Skills (comma-separated):</label>
-      <input
-        type="text"
-        id="skills"
-        class="border p-2 w-full rounded-md bg-gray-700 text-white"
-        placeholder="e.g. Python, ML, Flask"
-      />
+        <!-- Add before the Features Showcase Section -->
+        <!-- Career Trajectory Section -->
+        <section class="my-16 bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-xl shadow-lg">
+            <div class="flex items-center justify-center gap-4 mb-8">
+                <i class="fas fa-route text-3xl text-indigo-500"></i>
+                <h2 class="text-3xl font-semibold text-center">Career Trajectory Simulator</h2>
+                <i class="fas fa-chart-line text-3xl text-purple-500"></i>
+            </div>
+            
+            <!-- Career Trajectory content -->
+            <p class="text-center text-gray-700 mb-8 max-w-3xl mx-auto">
+                World's First AI-Powered Career Evolution Predictor: Visualize your candidate's potential career paths across multiple industries based on their current skills, market trends, and emerging technologies.
+            </p>
 
-      <button
-        onclick="uploadResumes()"
-        class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 w-full mt-6"
-      >
-        Submit & Rank Candidates
-      </button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Current Profile -->
+                <div class="career-card bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fas fa-user-circle text-2xl text-blue-500"></i>
+                        <h3 class="text-xl font-semibold">Current Profile</h3>
+                    </div>
+                    <div class="space-y-2 text-gray-600">
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-briefcase text-sm"></i>
+                            <span class="role">Software Engineer</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-clock text-sm"></i>
+                            <span class="experience">3 Years Experience</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-code text-sm"></i>
+                            <span class="skills">Full Stack Development</span>
+                        </p>
+                    </div>
+                </div>
 
-      <!-- Loading Animation -->
-      <div id="loading" class="hidden text-center mt-6">
-        <div
-          class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500 mx-auto"
-        ></div>
-        <p class="mt-2">Processing resumes...</p>
-      </div>
+                <!-- 5 Year Projection -->
+                <div class="career-card bg-white p-6 rounded-xl shadow-md relative">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-1 rounded-full text-sm">
+                        AI Predicted Path
+                    </div>
+                    <div class="flex items-center gap-3 mb-4 mt-2">
+                        <i class="fas fa-rocket text-2xl text-purple-500"></i>
+                        <h3 class="text-xl font-semibold">5 Year Projection</h3>
+                    </div>
+                    <div class="space-y-2 text-gray-600">
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-arrow-trend-up text-sm text-green-500"></i>
+                            <span class="career-path">Tech Lead → Engineering Manager</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-lightbulb text-sm text-yellow-500"></i>
+                            <span class="specialization">AI/ML Integration Specialist</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-chart-pie text-sm text-blue-500"></i>
+                            <span id="growthPotential">95% Growth Potential</span>
+                        </p>
+                    </div>
+                </div>
 
-      <!-- Results Section -->
-      <div id="results" class="mt-6"></div>
+                <!-- Market Alignment -->
+                <div class="career-card bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fas fa-globe text-2xl text-green-500"></i>
+                        <h3 class="text-xl font-semibold">Market Alignment</h3>
+                    </div>
+                    <div class="space-y-2 text-gray-600">
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-check-circle text-sm text-green-500"></i>
+                            <span class="demand">High Demand Skills Match</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-industry text-sm"></i>
+                            <span class="sectors">Emerging Tech Sectors</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-dollar-sign text-sm text-green-500"></i>
+                            <span class="salary">Salary Growth Trajectory</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Skill Match Section -->
+        <section class="my-16">
+            <div class="flex items-center justify-center gap-4 mb-8">
+                <i class="fas fa-network-wired text-3xl text-blue-500"></i>
+                <h2 class="text-3xl font-semibold text-center">Interactive Skill Match</h2>
+                <i class="fas fa-brain text-3xl text-pink-500"></i>
+            </div>
+            
+            <!-- Skill Match content -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 p-6 bg-white rounded-xl shadow-lg">
+                <!-- Technical Skills -->
+                <div class="p-6 rounded-lg bg-blue-50 hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fas fa-code text-2xl text-blue-500"></i>
+                        <h3 class="text-xl font-semibold">Technical Skills</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Programming</span>
+                            <div class="w-24 h-2 bg-blue-200 rounded-full">
+                                <div class="w-20 h-2 bg-blue-500 rounded-full"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Frameworks</span>
+                            <div class="w-24 h-2 bg-blue-200 rounded-full">
+                                <div class="w-16 h-2 bg-blue-500 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+            <!-- Soft Skills -->
+            <div class="p-6 rounded-lg bg-pink-50 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fas fa-users text-2xl text-pink-500"></i>
+                    <h3 class="text-xl font-semibold">Soft Skills</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Leadership</span>
+                        <div class="w-24 h-2 bg-pink-200 rounded-full">
+                            <div class="w-18 h-2 bg-pink-500 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Communication</span>
+                        <div class="w-24 h-2 bg-pink-200 rounded-full">
+                            <div class="w-22 h-2 bg-pink-500 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Experience Match -->
+            <div class="p-6 rounded-lg bg-purple-50 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fas fa-briefcase text-2xl text-purple-500"></i>
+                    <h3 class="text-xl font-semibold">Experience</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Industry</span>
+                        <div class="w-24 h-2 bg-purple-200 rounded-full">
+                            <div class="w-19 h-2 bg-purple-500 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Role Match</span>
+                        <div class="w-24 h-2 bg-purple-200 rounded-full">
+                            <div class="w-21 h-2 bg-purple-500 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </section>
+
+        <section class="my-16">
+            <h2 class="text-4xl font-semibold text-center mb-12">
+                What makes ResumeIQ <span class="text-pink-500">unique</span>?
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- ATS Integration -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="text-pink-500 text-3xl mb-4">📋</div>
+                    <h3 class="text-xl font-semibold mb-3">ATS Integration</h3>
+                    <p class="text-gray-600 mb-4">Seamless ATS integration, zero headaches. Works with your existing hiring system for smooth workflow.</p>
+                    <a href="#learn-more" class="text-pink-500 hover:text-pink-600 font-medium inline-flex items-center">
+                        Learn More 
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- FedRAMP -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="text-pink-500 text-3xl mb-4">🏛️</div>
+                    <h3 class="text-xl font-semibold mb-3">FedRAMP</h3>
+                    <p class="text-gray-600 mb-4">Compliant with federal security standards, ensuring your data is protected at the highest level.</p>
+                    <a href="#learn-more" class="text-pink-500 hover:text-pink-600 font-medium inline-flex items-center">
+                        Learn More 
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Backed by Science -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="text-pink-500 text-3xl mb-4">🚀</div>
+                    <h3 class="text-xl font-semibold mb-3">Backed by Science</h3>
+                    <p class="text-gray-600 mb-4">Research-driven approach ensuring accurate and unbiased candidate evaluation.</p>
+                    <a href="#learn-more" class="text-pink-500 hover:text-pink-600 font-medium inline-flex items-center">
+                        Learn More 
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Trusted Security -->
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="text-pink-500 text-3xl mb-4">🔒</div>
+                    <h3 class="text-xl font-semibold mb-3">Trusted Security</h3>
+                    <p class="text-gray-600 mb-4">Enterprise-grade security protocols protecting your sensitive recruitment data.</p>
+                    <a href="#learn-more" class="text-pink-500 hover:text-pink-600 font-medium inline-flex items-center">
+                        Learn More 
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </section>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-16 w-full">
+        <div class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
+            <!-- ResumeIQ Section -->
+            <div>
+                <h3 class="text-2xl font-bold mb-6">ResumeIQ</h3>
+                <ul class="space-y-3">
+                    <li><a href="#platform" class="hover:text-blue-300 transition">Platform</a></li>
+                    <li><a href="#demo" class="hover:text-blue-300 transition">Get a Demo</a></li>
+                    <li><a href="#assessment" class="hover:text-blue-300 transition">Assessment Software</a></li>
+                    <li><a href="#video" class="hover:text-blue-300 transition">Video Interviewing</a></li>
+                </ul>
+            </div>
+
+            <!-- Resources Section -->
+            <div>
+                <h3 class="text-2xl font-bold mb-6">Resources</h3>
+                <ul class="space-y-3">
+                    <li><a href="#candidates" class="hover:text-blue-300 transition">For Candidates</a></li>
+                    <li><a href="#managers" class="hover:text-blue-300 transition">For Hiring Managers</a></li>
+                    <li><a href="#blog" class="hover:text-blue-300 transition">ResumeIQ Blog</a></li>
+                    <li><a href="#universities" class="hover:text-blue-300 transition">Tools For Universities</a></li>
+                </ul>
+            </div>
+
+            <!-- Why ResumeIQ Section -->
+            <div>
+                <h3 class="text-2xl font-bold mb-6">Why ResumeIQ</h3>
+                <ul class="space-y-3">
+                    <li><a href="#services" class="hover:text-blue-300 transition">Services</a></li>
+                    <li><a href="#security" class="hover:text-blue-300 transition">Security</a></li>
+                    <li><a href="#science" class="hover:text-blue-300 transition">Our Science</a></li>
+                    <li><a href="#partners" class="hover:text-blue-300 transition">Integration Partners</a></li>
+                    <li><a href="#awards" class="hover:text-blue-300 transition">Customer Awards</a></li>
+                </ul>
+            </div>
+
+            <!-- Company Section -->
+            <div>
+                <h3 class="text-2xl font-bold mb-6">Company</h3>
+                <ul class="space-y-3">
+                    <li><a href="#legal" class="hover:text-blue-300 transition">Legal Center</a></li>
+                    <li><a href="#about" class="hover:text-blue-300 transition">About Us</a></li>
+                    <li><a href="#careers" class="hover:text-blue-300 transition">Careers</a></li>
+                    <li><a href="#press" class="hover:text-blue-300 transition">Press & News</a></li>
+                    <li><a href="#contact" class="hover:text-blue-300 transition">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="max-w-7xl mx-auto px-8 mt-12 pt-8 border-t border-gray-700">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-sm text-gray-400">
+                    © 2025 ResumeIQ. All rights reserved.
+                </div>
+                <div class="flex gap-6 mt-4 md:mt-0">
+                    <a href="#privacy" class="text-sm text-gray-400 hover:text-white transition">Privacy Policy</a>
+                    <a href="#terms" class="text-sm text-gray-400 hover:text-white transition">Terms of Service</a>
+                    <a href="#cookies" class="text-sm text-gray-400 hover:text-white transition">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-  </body>
-</html>
+    <script src="{{ url_for('static', filename='skillMatch.js') }}"></script>
+    <script src="{{ url_for('static', filename='careerTrajectory.js') }}"></script>
+</body>
+image.png</html>
